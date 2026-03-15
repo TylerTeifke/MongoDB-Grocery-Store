@@ -2,6 +2,7 @@ require('dotenv').config()
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConn')
 const Employee = require('./models/Employee')
+const Position = require('./models/Position')
 //forces the Windos DNS server to resolve
 require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -10,12 +11,45 @@ connectDB()
 
 const handleFind = async () => {
     const query = Employee.findOne({ 'firstname': 'Jane' })
-    query.select('firstname lastname')
-    const Jane = await query.exec()
-    console.log('%s %s', Jane.firstname, Jane.lastname)
+    query.select('position_id')
+    const pos = await query.exec()
+    console.log(pos)
+}
+
+//updates the variables of various tables
+const handleUpdate = async () => {
+    const query = Position.findOne({ 'name': 'Cashier' })
+    query.select('_id')
+    const pos = await query.exec()
+
+    await Employee.updateOne({ position_id: pos })
+}
+
+//Joins the employees and positions tables
+const aggregateEmployeesAndPositions = async () => {
+    //fix problem with the lookup aggregation
+    const res = await Employee.aggregate().
+    lookup({ from: 'positions',
+             localField: 'position_id',
+             foreignField: '_id', 
+             as: 'position' })
+
+    console.log(res)
 }
 
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB')
-    handleFind()
+    
+    //Add new entries to a table
+    /*
+    const newPos1 = new Position({ name: 'Cashier' })
+    const newPos2 = new Position({ name: 'Clerk' })
+    const newPos3 = new Position({ name: 'Manager' })
+    newPos1.save()
+    newPos2.save()
+    newPos3.save()
+    */
+    //handleUpdate()
+    //handleFind()
+    aggregateEmployeesAndPositions()
 })
