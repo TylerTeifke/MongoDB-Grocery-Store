@@ -28,17 +28,23 @@ const handleUpdate = async () => {
 //Joins the employees and positions tables
 const aggregateEmployeesAndPositions = async () => {
     //fix problem with the lookup aggregation
-    const res = await Employee.aggregate().
-    lookup({ from: 'positions',
-             localField: 'position_id',
-             foreignField: '_id', 
-             as: 'position' })
-
-    console.log(res)
+    /*
+    Employee.aggregate().lookup({
+        from: 'positions',
+        localField: 'position_id',
+        foreignField: '_id',
+        as: 'position'
+    }).exec()
+    */
+   var query = Employee.find({ firstname: 'Jane' })
+   const res = await query.exec()
+   console.log(res)
 }
 
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB')
+
+    //Continue working on connecting the Employee and Position tables
     
     //Add new entries to a table
     /*
@@ -51,5 +57,5 @@ mongoose.connection.once('open', () => {
     */
     //handleUpdate()
     //handleFind()
-    aggregateEmployeesAndPositions()
+    //aggregateEmployeesAndPositions()
 })

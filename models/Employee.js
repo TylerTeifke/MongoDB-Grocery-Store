@@ -14,8 +14,9 @@ const employeeSchema = new Schema({
         type: String
     },
     position_id: {
-        type: mongoose.ObjectId,
-        required: true
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'Position'
     },
     salary: {
         type: Number,
