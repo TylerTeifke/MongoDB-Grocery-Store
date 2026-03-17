@@ -9,36 +9,54 @@ require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
 //connect to MongoDB
 connectDB()
 
-const handleFind = async () => {
-    const query = Employee.findOne({ 'firstname': 'Jane' })
-    query.select('position_id')
+const handleFind = async (fName, lName) => {
+    const query = Employee.findOne({ 'firstname': fName, 'lastname': lName })
+    //query.select('firstname')
     const pos = await query.exec()
     console.log(pos)
 }
 
 //updates the variables of various tables
-const handleUpdate = async () => {
-    const query = Position.findOne({ 'name': 'Cashier' })
-    query.select('_id')
-    const pos = await query.exec()
-
-    await Employee.updateOne({ position_id: pos })
+const handleUpdate = async (position, fName, lName) => {
+    //Get an employee and push their ID into the employees array in a position
+    const query = Employee.findOne({ 'firstname': fName, 'lastname': lName })
+    const emp = await query.exec()
+    await Position.updateOne({name: position}, {$push:{employees:{$each:[emp._id]}}})
 }
 
 //Joins the employees and positions tables
 const aggregateEmployeesAndPositions = async () => {
-    //fix problem with the lookup aggregation
-    /*
-    Employee.aggregate().lookup({
-        from: 'positions',
-        localField: 'position_id',
-        foreignField: '_id',
-        as: 'position'
-    }).exec()
-    */
-   var query = Employee.find({ firstname: 'Jane' })
-   const res = await query.exec()
-   console.log(res)
+   const emp = await Employee.findOne({ firstname: 'John' }).populate('position_id').exec()
+   console.log(emp)
+}
+
+//Creates a new employee
+const addNewEmployee = async (position, fName, lName, reg, sal) => {
+    const query = Position.findOne({ 'name': position })
+    query.select('_id')
+    const pos = await query.exec()
+
+    const newEmp = new Employee({
+        firstname: fName,
+        lastname: lName,
+        register: reg,
+        position_id: pos._id,
+        salary: sal
+    })
+
+    await newEmp.save()
+}
+
+const getAllEmployeesInAPosition = async (position) => {
+    //const pos = await Position.findOne({'firstname': position}).exec()
+    //console.log(pos)
+
+    const query = Position.findOne({ 'name': position })
+    //query.select('firstname')
+    const pos = await query.exec()
+
+    await pos.populate('employees')
+    console.log(pos.employees[0].firstname)
 }
 
 mongoose.connection.once('open', () => {
@@ -56,6 +74,14 @@ mongoose.connection.once('open', () => {
     newPos3.save()
     */
     //handleUpdate()
-    //handleFind()
+    //addNewEmployee('Cashier', 'George', 'Washington', 'B', 20)
+    //addNewEmployee('Cashier', 'John', 'Adams', 'C', 20)
+    //addNewEmployee('Cashier', 'Thomas', 'Jefferson', 'D', 20)
+    //addNewEmployee('Manager', 'James', 'Madison', null, 40)
+    //handleUpdate('Clerk', 'Jane', 'Smith')
+    //handleUpdate('Manager', 'James', 'Madison')
+    getAllEmployeesInAPosition('Clerk')
+    getAllEmployeesInAPosition('Manager')
+    
     //aggregateEmployeesAndPositions()
 })
