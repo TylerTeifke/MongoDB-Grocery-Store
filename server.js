@@ -3,6 +3,10 @@ const mongoose = require('mongoose')
 const connectDB = require('./config/dbConn')
 const Employee = require('./models/Employee')
 const Position = require('./models/Position')
+const Customer = require('./models/Customer')
+const Product = require('./models/Product')
+const Product_Detail = require('./models/Product_Detail')
+const Product_Type = require('./models/Product_Type')
 //forces the Windos DNS server to resolve
 require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -11,6 +15,13 @@ connectDB()
 
 const handleFind = async (fName, lName) => {
     const query = Employee.findOne({ 'firstname': fName, 'lastname': lName })
+    //query.select('firstname')
+    const pos = await query.exec()
+    console.log(pos)
+}
+
+const findCustomer = async (fName, lName) => {
+    const query = Customer.findOne({ 'firstname': fName, 'lastname': lName })
     //query.select('firstname')
     const pos = await query.exec()
     console.log(pos)
@@ -47,6 +58,68 @@ const addNewEmployee = async (position, fName, lName, reg, sal) => {
     await newEmp.save()
 }
 
+//creates a new customer
+const addNewCustomer = async (fName, lName, empFName, empLName) => {
+    const query = Employee.findOne({ 'firstname': empFName, 'lastname': empLName })
+    query.select('_id')
+    const emp = await query.exec()
+
+    const newCustomer = new Customer({
+        firstname: fName,
+        lastname: lName,
+        employee: emp._id
+    })
+
+    await newCustomer.save()
+
+    //updates the customers array in the corresponding employee table
+    await Employee.updateOne({_id: emp._id}, {$push:{customers:{$each:[newCustomer._id]}}})
+}
+
+//creates a new product type
+const addNewType = async (name) => {
+    const newType = new Product_Type({
+        type: name
+    })
+
+    await newType.save()
+}
+
+//creates a new product
+const addNewDetail = async (name, price, typeName) => {
+    const query = Product_Type.findOne({ 'type': typeName })
+    query.select('_id')
+    const type = await query.exec()
+
+    const newDetails = new Product_Detail({
+        name: name,
+        price: price,
+        type: type._id
+    })
+
+    await newDetails.save()
+
+    //updates the details array in the corresponding type table
+    await Product_Type.updateOne({_id: type._id}, {$push:{details:{$each:[newDetails._id]}}})
+}
+
+//creates a copy of a product in the inventory
+const addNewProduct = async (date, detailsName) => {
+    const query = Product_Detail.findOne({ 'name': detailsName })
+    query.select('_id')
+    const details = await query.exec()
+
+    const newPro = new Product({
+        details: details._id,
+        expiration_date: date
+    })
+
+    await newPro.save()
+
+    //updates the products array in the corresponding details table
+    await Product_Detail.updateOne({_id: details._id}, {$push:{products:{$each:[newPro._id]}}})
+}
+
 const getAllEmployeesInAPosition = async (position) => {
     //const pos = await Position.findOne({'firstname': position}).exec()
     //console.log(pos)
@@ -73,15 +146,12 @@ mongoose.connection.once('open', () => {
     newPos2.save()
     newPos3.save()
     */
-    //handleUpdate()
-    //addNewEmployee('Cashier', 'George', 'Washington', 'B', 20)
-    //addNewEmployee('Cashier', 'John', 'Adams', 'C', 20)
-    //addNewEmployee('Cashier', 'Thomas', 'Jefferson', 'D', 20)
-    //addNewEmployee('Manager', 'James', 'Madison', null, 40)
-    //handleUpdate('Clerk', 'Jane', 'Smith')
-    //handleUpdate('Manager', 'James', 'Madison')
-    getAllEmployeesInAPosition('Clerk')
-    getAllEmployeesInAPosition('Manager')
+
+    //addNewCustomer('Abraham', 'Lincoln', 'John', 'Smith')
+    //addNewType('Dairy')
+    //addNewDetail('Milk', 5, 'Dairy')
+    addNewProduct('2026-9-9', 'Milk')
+    
     
     //aggregateEmployeesAndPositions()
 })

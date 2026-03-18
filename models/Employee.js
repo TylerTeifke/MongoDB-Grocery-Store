@@ -18,6 +18,10 @@ const employeeSchema = new Schema({
         required: true,
         ref: 'Position'
     },
+    customers: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Customer'
+    }],
     salary: {
         type: Number,
         required: true
