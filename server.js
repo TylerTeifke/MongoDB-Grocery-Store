@@ -7,6 +7,7 @@ const Customer = require('./models/Customer')
 const Product = require('./models/Product')
 const Product_Detail = require('./models/Product_Detail')
 const Product_Type = require('./models/Product_Type')
+const readline = require("readline");
 //forces the Windos DNS server to resolve
 require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -135,8 +136,27 @@ const getAllEmployeesInAPosition = async (position) => {
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB')
 
-    //Continue working on connecting the Employee and Position tables
-    
+    let rl = readline.createInterface(
+		process.stdin, process.stdout
+	);
+
+    //get user input to work
+
+    /*
+    rl.question('Input a number between 1 and 6 ', (input) => {
+        console.log('Your input is: ' + input);
+        if(!isNaN(input) && Number(input) >= 1 && Number(input) <= 6){
+            //Do not repeat the question if the input is valid
+            console.log('Valid Input')
+            rl.close();
+        }
+        else{
+            //Repeat the question if the input is invalid
+            console.log('Invalid Input')
+        }
+    });
+    */
+
     //Add new entries to a table
     /*
     const newPos1 = new Position({ name: 'Cashier' })
@@ -150,8 +170,5 @@ mongoose.connection.once('open', () => {
     //addNewCustomer('Abraham', 'Lincoln', 'John', 'Smith')
     //addNewType('Dairy')
     //addNewDetail('Milk', 5, 'Dairy')
-    addNewProduct('2026-9-9', 'Milk')
-    
-    
-    //aggregateEmployeesAndPositions()
+    //addNewProduct('2026-9-9', 'Milk')
 })
