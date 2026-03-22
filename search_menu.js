@@ -1,14 +1,17 @@
 //This will display the menu for searching the database
-const mongoose = require('mongoose')
+//const mongoose = require('mongoose')
 const readline = require("readline");
+//const main_menu = require('./main_menu')
+const main_menu = require('./main_menu')
+const test = require('./test')
 
 //work on querying the database from this menu
 
 const search = () => {
-    console.log('Welcome to the grocery store database.')
+    console.log('Welcome to the search menu.')
     console.log('Type [1] to search for an employee')
     console.log('Type [2] to search for a customer')
-    console.log('Type [3] to search for the customers and employee is serving')
+    console.log('Type [3] to search for the customers an employee is serving')
     console.log("Type [4] to search for a customer's purchases")
     console.log('Type [5] to see a list of products')
     console.log('Type [6] to exit this menu')
@@ -42,19 +45,14 @@ const search = () => {
                 console.log('Valid')
                 break
             case '6':
-                console.log('Valid')
                 rl.close()
+                //test()
                 return
             default:
                 console.log('Invalid')
         }
 
         rl.prompt()
-    });
-
-    rl.on('close', () => {
-        console.log('Goodbye!');
-        process.exit(0);
     });
 }
 
