@@ -3,7 +3,6 @@
 const readline = require("readline");
 //const main_menu = require('./main_menu')
 const main_menu = require('./main_menu')
-const test = require('./test')
 
 //work on querying the database from this menu
 
@@ -46,7 +45,6 @@ const search = () => {
                 break
             case '6':
                 rl.close()
-                //test()
                 return
             default:
                 console.log('Invalid')

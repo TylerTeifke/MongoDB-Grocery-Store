@@ -1,36 +1,43 @@
 //Will display the main menu of the program
 const readline = require("readline");
-const search = require('./search_menu')
+const Employee = require('./models/Employee')
+//const search = require('./search_menu')
 
-const main_menu = () => {
-    console.log('Connected to MongoDB')
-    console.log('Welcome to the grocery store database.')
-    console.log('Type [1] to search the database')
-    console.log('Type [2] to add entries')
-    console.log('Type [3] to delete entries')
-    console.log('Type [4] to update entries')
-    console.log('Type [5] to exit the database')
+const rl = readline.createInterface(
+	process.stdin,
+    process.stdout
+);
 
-    let rl = readline.createInterface(
-		process.stdin,
-        process.stdout
-	);
+//Get this method to also print out the employee positions
+const findEmployees = async () => {
+    const emps = await Employee.find({})
+    //query.select('firstname')
+    //const emps = await query.exec()
+    for(let i = 0; i < emps.length; i++){
+        console.log('First Name:', emps[i].firstname, 
+                    'Last Name:', emps[i].lastname, 
+                    'Register:', emps[i].register, 
+                    'Salary:', emps[i].salary)
+    }
+    return emps
+}
 
-    rl.setPrompt('Type a number between 1 and 5: ')
+async function main_menu() {
+    console.log('Welcome to the grocery store database')
+    let running = true
 
-    //display initial prompt
-    rl.prompt()
+    while(running){
+        console.log('Type [1] to see a list of employees')
+        console.log('Type [2] to see a list of customers')
+        console.log('Type [3] to see a list of products')
+        console.log('Type [4] to see a list of purchases')
+        console.log('Type [5] to exit the database')
 
-    
-    rl.on('line', (line) => {
-        //removes spaces from the input
-        const input = line.trim()
+        const answer = await askQuestion('Select an option: ');
 
-        switch(input){
+        switch(answer){
             case '1':
-                rl.pause()
-                search()
-                rl.resume()
+                await findEmployees()
                 break
             case '2':
                 console.log('Valid')
@@ -42,20 +49,25 @@ const main_menu = () => {
                 console.log('Valid')
                 break
             case '5':
-                console.log('Valid')
                 rl.close()
+                running = false
                 return
             default:
                 console.log('Invalid')
         }
-
-        rl.prompt()
-    });
-
-    //rl.on('close', () => {
-    //    console.log('Goodbye!');
-    //    process.exit(0);
-    //});
+    }
 }
+
+// Promise-based question function
+function askQuestion(query) {
+    return new Promise(resolve => {
+        rl.question(query, resolve);
+    });
+}
+
+rl.on('close', () => {
+    console.log('Goodbye!');
+    process.exit(0);
+});
 
 module.exports = main_menu

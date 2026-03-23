@@ -136,6 +136,7 @@ const getAllEmployeesInAPosition = async (position) => {
 }
 
 mongoose.connection.once('open', () => {
+    console.log('Connected to MongoDB')
     main_menu()
 
     //Add new entries to a table
