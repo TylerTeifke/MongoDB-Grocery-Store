@@ -1,25 +1,60 @@
 //Will display the main menu of the program
 const readline = require("readline");
 const Employee = require('./models/Employee')
-//const search = require('./search_menu')
+const Customer = require('./models/Customer')
+const Product = require('./models/Product_Detail')
+const Individual_Product = require('./models/Product')
 
 const rl = readline.createInterface(
 	process.stdin,
     process.stdout
 );
 
-//Get this method to also print out the employee positions
+//Prints out the information of all employees
 const findEmployees = async () => {
-    const emps = await Employee.find({})
-    //query.select('firstname')
-    //const emps = await query.exec()
+    const emps = await Employee.find({}).populate('position_id')
     for(let i = 0; i < emps.length; i++){
         console.log('First Name:', emps[i].firstname, 
                     'Last Name:', emps[i].lastname, 
                     'Register:', emps[i].register, 
-                    'Salary:', emps[i].salary)
+                    'Salary:', emps[i].salary,
+                    'Position:', emps[i].position_id.name)
     }
-    return emps
+}
+
+//Prints out the information of all customers
+const findCustomers = async () => {
+    const custs = await Customer.find({}).populate('employee')
+    for(let i = 0; i < custs.length; i++){
+        console.log('First Name:', custs[i].firstname, 
+                    'Last Name:', custs[i].lastname, 
+                    'Cashier:', custs[i].employee.firstname, custs[i].employee.lastname)
+    }
+}
+
+//Prints out the information of all products
+const findProducts = async () => {
+    const pros = await Product.find({}).populate('type')
+    for(let i = 0; i < pros.length; i++){
+        console.log('Name:', pros[i].name, 
+                    'Price:', pros[i].price, 
+                    'Type:', pros[i].type.type)
+    }
+}
+
+//Prints out all of a customer's purchases
+const findPurchases = async () => {
+    const query = await Customer.find({})
+    //const custs = await query
+    //await query[0].populate('products')
+    for(let i = 0; i < query.length; i++){
+        const pros = query[i].products
+        for(let j = 0; j < pros.length; j++){
+            const pro = await Individual_Product.findOne({ '_id': pros[j]}).populate('details')
+
+            console.log('Customer Name:', query[i].firstname, query[i].lastname, 'Product Name:', pro.details.name)
+        }
+    }
 }
 
 async function main_menu() {
@@ -40,13 +75,13 @@ async function main_menu() {
                 await findEmployees()
                 break
             case '2':
-                console.log('Valid')
+                await findCustomers()
                 break
             case '3':
-                console.log('Valid')
+                await findProducts()
                 break
             case '4':
-                console.log('Valid')
+                await findPurchases()
                 break
             case '5':
                 rl.close()

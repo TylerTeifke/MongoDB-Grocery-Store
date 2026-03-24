@@ -31,11 +31,11 @@ const findCustomer = async (fName, lName) => {
 }
 
 //updates the variables of various tables
-const handleUpdate = async (position, fName, lName) => {
+const handleUpdate = async (fName, lName) => {
     //Get an employee and push their ID into the employees array in a position
-    const query = Employee.findOne({ 'firstname': fName, 'lastname': lName })
-    const emp = await query.exec()
-    await Position.updateOne({name: position}, {$push:{employees:{$each:[emp._id]}}})
+    const query = Product_Detail.findOne({ 'name': 'Milk' })
+    const pro = await query.exec()
+    await Customer.updateOne({firstname: fName, lastname: lName}, {$push:{products:{$each:[pro.products[0]]}}})
 }
 
 //Joins the employees and positions tables
