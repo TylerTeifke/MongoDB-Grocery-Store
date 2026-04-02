@@ -1,4 +1,6 @@
 require('dotenv').config()
+const express = require('express')
+const app = express()
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConn')
 const Employee = require('./models/Employee')
@@ -12,9 +14,22 @@ const Product_Type = require('./models/Product_Type')
 const main_menu = require('./main_menu')
 //forces the Windos DNS server to resolve
 require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
+const PORT = process.env.PORT || 3500
 
 //connect to MongoDB
 connectDB()
+
+//built-in middleware to handle urlencoded data
+//in other words, form data:
+// 'content-type: application/x-www-form-urlencoded'
+//app.use is used to apply middleware to all routes
+app.use(express.urlencoded({ extended: false }))
+
+//built-in middleware for json
+app.use(express.json())
+
+//will route any request to custoemrs to the router
+app.use('/customers', require('./routes/api/customers'))
 
 const handleFind = async (fName, lName) => {
     const query = Employee.findOne({ 'firstname': fName, 'lastname': lName })
@@ -137,7 +152,7 @@ const getAllEmployeesInAPosition = async (position) => {
 
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB')
-    main_menu()
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 
     //Add new entries to a table
     /*
