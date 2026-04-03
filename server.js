@@ -3,6 +3,8 @@ const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
 const connectDB = require('./config/dbConn')
+const corsOptions = require('./config/corsOptions')
+const cors = require('cors')
 const Employee = require('./models/Employee')
 const Position = require('./models/Position')
 const Customer = require('./models/Customer')
@@ -18,6 +20,9 @@ const PORT = process.env.PORT || 3500
 
 //connect to MongoDB
 connectDB()
+
+//CORS stands for 'Cross Origin Resource Sharing'
+app.use(cors(corsOptions))
 
 //built-in middleware to handle urlencoded data
 //in other words, form data:
