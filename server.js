@@ -33,8 +33,14 @@ app.use(express.urlencoded({ extended: false }))
 //built-in middleware for json
 app.use(express.json())
 
-//will route any request to custoemrs to the router
+//will route any request to customers to the router
 app.use('/customers', require('./routes/api/customers'))
+
+//will route any request to employees to the router
+app.use('/employees', require('./routes/api/employees'))
+
+//will route any request to products to the router
+app.use('/products', require('./routes/api/products'))
 
 const handleFind = async (fName, lName) => {
     const query = Employee.findOne({ 'firstname': fName, 'lastname': lName })
@@ -153,6 +159,15 @@ const getAllEmployeesInAPosition = async (position) => {
 
     await pos.populate('employees')
     console.log(pos.employees[0].firstname)
+}
+
+const getProducts = async () => {
+    const query = Product.find().populate('details')
+    const pros = await query.exec()
+    //await pros.populate('details')
+    console.log(pros[0].details.name)
+    console.log(pros[0].details.price)
+    console.log(pros[0].expiration_date)
 }
 
 mongoose.connection.once('open', () => {
