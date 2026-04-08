@@ -6,4 +6,7 @@ const customerController = require('../../controllers/customerController')
 router.route('/')
     .get(customerController.getAllCustomers)
 
+router.route('/:first/:last')
+    .get(customerController.getOneCustomer)
+
 module.exports = router

@@ -7,6 +7,15 @@ const getAllCustomers = async (req, res) => {
     res.json(customers)
 }
 
+const getOneCustomer = async (req, res) => {
+    const customer = await Customer.findOne({ firstname: req.params.first, lastname: req.params.last }).exec()
+    if (!customer) {
+        return res.status(409)
+    }
+    res.json(customer);
+}
+
 module.exports = {
-    getAllCustomers
+    getAllCustomers,
+    getOneCustomer
 }
