@@ -18,7 +18,7 @@ const getOneCustomer = async (req, res) => {
                                 })
 
     if (!customer) {
-        return res.status(409)
+        return res.sendStatus(401)
     }
     res.json(customer);
 }

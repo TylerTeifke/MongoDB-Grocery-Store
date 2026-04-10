@@ -6,4 +6,7 @@ const employeeController = require('../../controllers/employeeController')
 router.route('/')
     .get(employeeController.getAllEmployees)
 
+router.route('/:first/:last')
+    .get(employeeController.getOneEmployee)
+
 module.exports = router
