@@ -5,6 +5,7 @@ const customerController = require('../../controllers/customerController')
 
 router.route('/')
     .get(customerController.getAllCustomers)
+    .post(customerController.createCustomer)
 
 router.route('/:first/:last')
     .get(customerController.getOneCustomer)
