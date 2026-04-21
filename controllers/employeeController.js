@@ -22,7 +22,7 @@ const getOneEmployee = async (req, res) => {
 }
 
 const createEmployee = async (req, res) => {
-    const {firstName, lastName, register, position, salary} = req.body
+    let {firstName, lastName, register, position, salary} = req.body
 
     //check for duplicate employees in the db
     //This line needs the .exec() because it uses the await word
@@ -37,12 +37,21 @@ const createEmployee = async (req, res) => {
         return res.sendStatus(410)
     }
 
+    //Will make it so the register is null for non-cashiers
+    if(position !== "Cashier"){
+        register = null
+    }
+    //Will make sure the register is capitalized in the database
+    else{
+        register.toUpperCase()
+    }
+
     try{
         //create and save the new employee
         const newEmployee = new Employee({
             firstname: firstName,
             lastname: lastName,
-            register: register.toUpperCase(),
+            register: register,
             position_id: pos._id,
             salary: salary
         })
