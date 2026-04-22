@@ -185,7 +185,6 @@ mongoose.connection.once('open', () => {
     */
 
     //addNewCustomer('Abraham', 'Lincoln', 'John', 'Smith')
-    //addNewType('Dairy')
     //addNewDetail('Milk', 5, 'Dairy')
     //addNewProduct('2026-9-9', 'Milk')
 })
