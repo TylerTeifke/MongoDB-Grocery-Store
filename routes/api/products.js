@@ -8,5 +8,7 @@ router.route('/')
     .get(productController.getAllProducts)
     .post(productDetailsController.createProduct)
 
+router.route('/inventory')
+    .post(productController.addToInventory)
 
 module.exports = router
