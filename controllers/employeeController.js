@@ -68,8 +68,33 @@ const createEmployee = async (req, res) => {
     }
 }
 
+const updateEmployeeName = async (req, res) => {
+    const { oldFirstName, oldLastName, newFirstName, newLastName } = req.body
+
+    //If there is no employee with the old name, send an error message to the front end
+    const employee = await Employee.findOne({ firstname: oldFirstName, lastname: oldLastName }).exec()
+    if(!employee){
+        return res.sendStatus(409)
+    }
+
+    //If the new name is taken, send an error message
+    const duplicate = await Employee.findOne({ firstname: newFirstName, lastname: newLastName }).exec()
+    if(duplicate){
+        return res.sendStatus(410)
+    }
+
+    try{
+        await Employee.updateOne({firstname: oldFirstName, lastname: oldLastName}, {firstname: newFirstName, lastname: newLastName})
+        res.status(201).json({ 'success': `employee name updated` })
+    }
+    catch{
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllEmployees,
     getOneEmployee,
-    createEmployee
+    createEmployee,
+    updateEmployeeName
 }
