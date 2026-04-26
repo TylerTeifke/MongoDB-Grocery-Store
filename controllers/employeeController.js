@@ -92,9 +92,51 @@ const updateEmployeeName = async (req, res) => {
     }
 }
 
+const updateEmployeeSalary = async (req, res) => {
+    const { firstName, lastName, salary } = req.body
+
+    //If there is no employee with the specified name, send an error message to the front end
+    const employee = await Employee.findOne({ firstname: firstName, lastname: lastName }).exec()
+    if(!employee){
+        return res.sendStatus(409)
+    }
+
+    try{
+        await Employee.updateOne({firstname: firstName, lastname: lastName}, {salary: salary})
+        res.status(201).json({ 'success': `employee salary updated` })
+    }
+    catch{
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
+const updateEmployeeRegister = async (req, res) => {
+    const { firstName, lastName, register } = req.body
+
+    //If there is no employee with the specified name, send an error message to the front end
+    const employee = await Employee.findOne({ firstname: firstName, lastname: lastName }).exec()
+    if(!employee){
+        return res.sendStatus(409)
+    }
+    //If the employee is not a cashier, then you cannot update their cash register
+    if(employee.register === null){
+        return res.sendStatus(410)
+    }
+
+    try{
+        await Employee.updateOne({firstname: firstName, lastname: lastName}, {register: register.toUpperCase()})
+        res.status(201).json({ 'success': `employee register updated` })
+    }
+    catch{
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllEmployees,
     getOneEmployee,
     createEmployee,
-    updateEmployeeName
+    updateEmployeeName,
+    updateEmployeeSalary,
+    updateEmployeeRegister
 }

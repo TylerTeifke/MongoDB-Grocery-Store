@@ -13,4 +13,10 @@ router.route('/:first/:last')
 router.route('/updateName')
     .put(employeeController.updateEmployeeName)
 
+router.route('/updateSalary')
+    .put(employeeController.updateEmployeeSalary)
+
+router.route('/updateRegister')
+    .put(employeeController.updateEmployeeRegister)
+
 module.exports = router
