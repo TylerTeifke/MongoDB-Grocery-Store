@@ -59,9 +59,11 @@ const findCustomer = async (fName, lName) => {
 //updates the variables of various tables
 const handleUpdate = async (fName, lName) => {
     //Get an employee and push their ID into the employees array in a position
-    const query = Product_Detail.findOne({ 'name': 'Milk' })
-    const pro = await query.exec()
-    await Customer.updateOne({firstname: fName, lastname: lName}, {$push:{products:{$each:[pro.products[0]]}}})
+    const query = Employee.findOne({ "firstname": fName, "lastname": lName })
+    //query.select('_id')
+    const emp = await query.exec()
+    console.log(emp)
+    await Position.updateOne({name: "Cashier"}, {$pull:{employees: emp._id}})
 }
 
 //Joins the employees and positions tables
@@ -187,4 +189,5 @@ mongoose.connection.once('open', () => {
     //addNewCustomer('Abraham', 'Lincoln', 'John', 'Smith')
     //addNewDetail('Milk', 5, 'Dairy')
     //addNewProduct('2026-9-9', 'Milk')
+    //handleUpdate('John', 'Adams')
 })

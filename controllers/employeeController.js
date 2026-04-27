@@ -43,7 +43,7 @@ const createEmployee = async (req, res) => {
     }
     //Will make sure the register is capitalized in the database
     else{
-        register.toUpperCase()
+        register = register.toUpperCase()
     }
 
     try{
@@ -132,11 +132,45 @@ const updateEmployeeRegister = async (req, res) => {
     }
 }
 
+//TODO: Update customers array when switching an employee away from cashier
+const updateEmployeePosition = async (req, res) => {
+    let { firstName, lastName, position, register } = req.body
+
+    //If there is no employee with the specified name, send an error message to the front end
+    const employee = await Employee.findOne({ firstname: firstName, lastname: lastName }).exec()
+    if(!employee){
+        return res.sendStatus(409)
+    }
+    //Will be used to update the employees array in the old position entry
+    const old_pos = await Position.findOne({ '_id': employee.position_id }).exec()
+    //Will be used to find the matching position ID for the employee's new position
+    const new_pos = await Position.findOne({ 'name': position }).exec()
+
+    //Converting a cashier to another position will mean they no longer have a cash register
+    if(position !== "Cashier"){
+        register = null
+    }
+    else{
+        register = register.toUpperCase()
+    }
+
+    try{
+        await Position.updateOne({name: old_pos.name}, {$pull:{employees: employee._id}})
+        await Employee.updateOne({firstname: firstName, lastname: lastName}, {position_id: new_pos._id, register: register})
+        await Position.updateOne({name: new_pos.name}, {$push:{employees:{$each:[employee._id]}}})
+        res.status(201).json({ 'success': `employee position updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllEmployees,
     getOneEmployee,
     createEmployee,
     updateEmployeeName,
     updateEmployeeSalary,
-    updateEmployeeRegister
+    updateEmployeeRegister,
+    updateEmployeePosition
 }

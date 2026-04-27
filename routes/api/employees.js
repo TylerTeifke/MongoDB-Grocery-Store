@@ -19,4 +19,7 @@ router.route('/updateSalary')
 router.route('/updateRegister')
     .put(employeeController.updateEmployeeRegister)
 
+router.route('/updatePosition')
+    .put(employeeController.updateEmployeePosition)
+
 module.exports = router
