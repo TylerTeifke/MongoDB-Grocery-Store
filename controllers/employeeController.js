@@ -1,6 +1,7 @@
 //Will hold the logic of various api calls relating to employees
 const Employee = require('../models/Employee')
 const Position = require('../models/Position')
+const Customer = require('../models/Customer')
 
 const getAllEmployees = async (req, res) => {
     const employees = await Employee.find()
@@ -155,6 +156,16 @@ const updateEmployeePosition = async (req, res) => {
     }
 
     try{
+
+        //Empty the employee's customer array, and disconnect the customers from the employee
+        //when changing them from a cashier to another position
+        if(old_pos.name === "Cashier"){
+            for(let i = 0; i < employee.customers.length; i++){
+                await Customer.updateOne({_id: employee.customers[i]}, {employee: null})
+            }
+
+            await Employee.updateOne({firstname: firstName, lastname: lastName}, {$set:{customers: []}})
+        }
         await Position.updateOne({name: old_pos.name}, {$pull:{employees: employee._id}})
         await Employee.updateOne({firstname: firstName, lastname: lastName}, {position_id: new_pos._id, register: register})
         await Position.updateOne({name: new_pos.name}, {$push:{employees:{$each:[employee._id]}}})
