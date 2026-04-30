@@ -88,7 +88,7 @@ const updateEmployeeName = async (req, res) => {
         await Employee.updateOne({firstname: oldFirstName, lastname: oldLastName}, {firstname: newFirstName, lastname: newLastName})
         res.status(201).json({ 'success': `employee name updated` })
     }
-    catch{
+    catch(err){
         res.status(500).json({ 'message': err.message })
     }
 }
@@ -106,7 +106,7 @@ const updateEmployeeSalary = async (req, res) => {
         await Employee.updateOne({firstname: firstName, lastname: lastName}, {salary: salary})
         res.status(201).json({ 'success': `employee salary updated` })
     }
-    catch{
+    catch(err){
         res.status(500).json({ 'message': err.message })
     }
 }
@@ -128,12 +128,11 @@ const updateEmployeeRegister = async (req, res) => {
         await Employee.updateOne({firstname: firstName, lastname: lastName}, {register: register.toUpperCase()})
         res.status(201).json({ 'success': `employee register updated` })
     }
-    catch{
+    catch(err){
         res.status(500).json({ 'message': err.message })
     }
 }
 
-//TODO: Update customers array when switching an employee away from cashier
 const updateEmployeePosition = async (req, res) => {
     let { firstName, lastName, position, register } = req.body
 
@@ -176,6 +175,48 @@ const updateEmployeePosition = async (req, res) => {
     }
 }
 
+//Will allow the user to add a customer to the employee's list of customers
+const updateCustomerList = async (req, res) => {
+    const { empFirstName, empLastName, custFirstName, custLastName } = req.body
+
+    //If there is no employee with the specified name, send an error message to the front end
+    const employee = await Employee.findOne({ firstname: empFirstName, lastname: empLastName }).exec()
+    if(!employee){
+        return res.sendStatus(409)
+    }
+    //If there is no customer with the specified name, send an error message to the front end
+    const customer = await Customer.findOne({ firstname: custFirstName, lastname: custLastName }).exec()
+    if(!customer){
+        return res.sendStatus(410)
+    }
+    //If the employee is not a cashier, then they cannot have a customer list
+    const position = await Position.findOne({ _id: employee.position_id }).exec()
+    if(position.name !== 'Cashier'){
+        return res.sendStatus(411)
+    }
+    //If the customer is already connected to the employee, send an error message to the front end
+    if(customer.employee !== null && customer.employee.toString() === employee._id.toString()){
+        return res.sendStatus(412)
+    }
+
+    try{
+        //If the customer already had an employee, then that employee's customer list will
+        //also be updated
+        if(customer.employee !== null){
+            await Employee.updateOne({_id: customer.employee}, {$pull:{customers: customer._id}})
+        }
+
+        //updates the customers array in the corresponding employee entry, and the employee
+        //ID in corresponding customer entry
+        await Employee.updateOne({_id: employee._id}, {$push:{customers:{$each:[customer._id]}}})
+        await Customer.updateOne({_id: customer._id}, {employee: employee._id})
+        res.status(201).json({ 'success': `customer ${custFirstName} ${custLastName} added to employee ${empFirstName} ${empLastName}'s customer list` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllEmployees,
     getOneEmployee,
@@ -183,5 +224,6 @@ module.exports = {
     updateEmployeeName,
     updateEmployeeSalary,
     updateEmployeeRegister,
-    updateEmployeePosition
+    updateEmployeePosition,
+    updateCustomerList
 }
