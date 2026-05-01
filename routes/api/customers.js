@@ -10,4 +10,7 @@ router.route('/')
 router.route('/:first/:last')
     .get(customerController.getOneCustomer)
 
+router.route('/updateName')
+    .put(customerController.updateCustomerName)
+
 module.exports = router

@@ -63,8 +63,33 @@ const createCustomer = async (req, res) =>  {
     }
 }
 
+const updateCustomerName = async (req, res) => {
+    const { oldFirstName, oldLastName, newFirstName, newLastName } = req.body
+
+    //If there is no customer with the old name, send an error message to the front end
+    const customer = await Customer.findOne({ firstname: oldFirstName, lastname: oldLastName }).exec()
+    if(!customer){
+        return res.sendStatus(409)
+    }
+
+    //If the new name is taken, send an error message
+    const duplicate = await Customer.findOne({ firstname: newFirstName, lastname: newLastName }).exec()
+    if(duplicate){
+        return res.sendStatus(410)
+    }
+
+    try{
+        await Customer.updateOne({firstname: oldFirstName, lastname: oldLastName}, {firstname: newFirstName, lastname: newLastName})
+        res.status(201).json({ 'success': `customer name updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllCustomers,
     getOneCustomer,
-    createCustomer
+    createCustomer,
+    updateCustomerName
 }
