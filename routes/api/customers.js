@@ -13,4 +13,7 @@ router.route('/:first/:last')
 router.route('/updateName')
     .put(customerController.updateCustomerName)
 
+router.route('/updateCashier')
+    .put(customerController.updateCustomerCashier)
+
 module.exports = router

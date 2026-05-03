@@ -87,9 +87,46 @@ const updateCustomerName = async (req, res) => {
     }
 }
 
+const updateCustomerCashier = async (req, res) => {
+    const { custFirstName, custLastName, empFirstName, empLastName } = req.body
+
+    //Will check to make sure the customer exists
+    const customer = await Customer.findOne({ firstname: custFirstName, lastname: custLastName }).exec()
+    if(!customer) {
+        return res.sendStatus(409)
+    }
+
+    //Will check to make sure the employee exists and is a cashier
+    const new_emp = await Employee.findOne({ firstname: empFirstName, lastname: empLastName}).exec()
+    if(!new_emp){
+        return res.sendStatus(410)
+    }
+    if(new_emp.register === null){
+        return res.sendStatus(411)
+    }
+    if(customer.employee !== null && new_emp._id.toString() === customer.employee.toString()){
+        return res.sendStatus(412)
+    }
+
+    try{
+        //Will take the customer out of their current cashier's list, and insert them
+        //into the new cashier's list
+        if(customer.employee !== null){
+            await Employee.updateOne({_id: customer.employee}, {$pull:{customers: customer._id}})
+        }
+        await Employee.updateOne({_id: new_emp._id}, {$push:{customers:{$each:[customer._id]}}})
+        await Customer.updateOne({_id: customer._id}, {employee: new_emp._id})
+        res.status(201).json({ 'success': `customer cashier updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllCustomers,
     getOneCustomer,
     createCustomer,
-    updateCustomerName
+    updateCustomerName,
+    updateCustomerCashier
 }
