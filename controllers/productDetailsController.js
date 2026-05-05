@@ -12,11 +12,7 @@ const createProduct = async (req, res) => {
         return res.sendStatus(409)
     }
 
-    //Will check to make sure the product type exists
     const proType = await Product_Type.findOne({ type: type }).exec()
-    if(!proType){
-        return res.sendStatus(410)
-    }
 
     try{
         const newProduct = new Product({

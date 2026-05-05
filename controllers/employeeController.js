@@ -32,11 +32,7 @@ const createEmployee = async (req, res) => {
         return res.sendStatus(409)
     }
 
-    //Will check to make sure the position exists
     const pos = await Position.findOne({ name: position }).exec()
-    if(!pos){
-        return res.sendStatus(410)
-    }
 
     //Will make it so the register is null for non-cashiers
     if(position !== "Cashier"){
