@@ -9,6 +9,10 @@ const productSchema = new Schema({
     },
     expiration_date: {
         type: Schema.Types.Date
+    },
+    customer: {
+        type: Schema.Types.ObjectId,
+        ref: 'Customer'
     }
 })
 

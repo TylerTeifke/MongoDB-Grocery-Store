@@ -142,7 +142,8 @@ const addNewProduct = async (date, detailsName) => {
 
     const newPro = new Product({
         details: details._id,
-        expiration_date: date
+        expiration_date: date,
+        customer: null
     })
 
     await newPro.save()
@@ -172,6 +173,11 @@ const getProducts = async () => {
     console.log(pros[0].expiration_date)
 }
 
+const updateAllProducts = async () => {
+    const res = await Product.updateMany({}, {customer: null})
+    console.log(res.modifiedCount)
+}
+
 mongoose.connection.once('open', () => {
     console.log('Connected to MongoDB')
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
@@ -189,5 +195,6 @@ mongoose.connection.once('open', () => {
     //addNewCustomer('Abraham', 'Lincoln', 'John', 'Smith')
     //addNewDetail('Milk', 5, 'Dairy')
     //addNewProduct('2026-9-9', 'Milk')
+    //updateAllProducts()
     //handleUpdate('John', 'Adams')
 })

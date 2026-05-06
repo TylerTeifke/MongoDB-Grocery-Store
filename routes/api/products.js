@@ -11,4 +11,7 @@ router.route('/')
 router.route('/inventory')
     .post(productController.addToInventory)
 
+router.route('/available')
+    .get(productController.getAllProductsAvailable)
+
 module.exports = router

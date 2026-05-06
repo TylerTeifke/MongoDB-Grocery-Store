@@ -9,6 +9,12 @@ const getAllProducts = async (req, res) => {
     res.json(products)
 }
 
+const getAllProductsAvailable = async (req, res) => {
+    const products = await Product.find({customer: null}).populate('details')
+    if(!products) return res.status(204).json({ 'message': 'No products found.' })
+    res.json(products)
+}
+
 const addToInventory = async (req, res) => {
     let { name, expiration } = req.body
 
@@ -25,7 +31,8 @@ const addToInventory = async (req, res) => {
     try{
         const newPro = new Product({
             details: details._id,
-            expiration_date: expiration
+            expiration_date: expiration,
+            customer: null
         })
     
         await newPro.save()
@@ -41,5 +48,6 @@ const addToInventory = async (req, res) => {
 
 module.exports = {
     getAllProducts,
+    getAllProductsAvailable,
     addToInventory
 }
