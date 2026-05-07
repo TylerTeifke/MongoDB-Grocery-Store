@@ -197,4 +197,5 @@ mongoose.connection.once('open', () => {
     //addNewProduct('2026-9-9', 'Milk')
     //updateAllProducts()
     //handleUpdate('John', 'Adams')
+    //findCustomer("Abraham", "Lincoln")
 })

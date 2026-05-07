@@ -16,4 +16,7 @@ router.route('/updateName')
 router.route('/updateCashier')
     .put(customerController.updateCustomerCashier)
 
+router.route('/addProduct')
+    .put(customerController.addToKart)
+
 module.exports = router

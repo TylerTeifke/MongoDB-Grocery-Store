@@ -1,6 +1,7 @@
 //Will hold the logic of various api calls relating to customers
 const Customer = require('../models/Customer')
 const Employee = require('../models/Employee')
+const Product = require('../models/Product')
 
 const getAllCustomers = async (req, res) => {
     const customers = await Customer.find()
@@ -123,10 +124,33 @@ const updateCustomerCashier = async (req, res) => {
     }
 }
 
+const addToKart = async (req, res) => {
+    const { firstName, lastName, itemID } = req.body
+    console.log(itemID)
+    const customer = await Customer.findOne({ firstname: firstName, lastname: lastName }).exec()
+    const product = await Product.findOne({ _id: itemID }).exec()
+
+    //If the customer already has the product in their kart, then don't add it again
+    if(product.customer !== null && customer._id.toString() === product.customer.toString()){
+        return res.sendStatus(409)
+    }
+
+    try{
+        //Updates both the customer and the product
+        await Product.updateOne({_id: itemID}, {customer: customer._id})
+        await Customer.updateOne({firstname: firstName, lastname: lastName}, {$push:{products:{$each:[itemID]}}})
+        res.status(201).json({ 'success': `customer kart updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllCustomers,
     getOneCustomer,
     createCustomer,
     updateCustomerName,
-    updateCustomerCashier
+    updateCustomerCashier,
+    addToKart
 }

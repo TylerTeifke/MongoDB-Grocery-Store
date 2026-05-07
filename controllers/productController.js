@@ -2,6 +2,7 @@
 const Product = require('../models/Product')
 const Product_Type = require('../models/Product_Type')
 const Product_Detail = require('../models/Product_Detail')
+const Customer = require('../models/Customer')
 
 const getAllProducts = async (req, res) => {
     const products = await Product.find().populate('details')
@@ -11,6 +12,15 @@ const getAllProducts = async (req, res) => {
 
 const getAllProductsAvailable = async (req, res) => {
     const products = await Product.find({customer: null}).populate('details')
+    if(!products) return res.status(204).json({ 'message': 'No products found.' })
+    res.json(products)
+}
+
+const getAllUnavailableProducts = async (req, res) => {
+    const { firstName, lastName } = req.body
+
+    const customer = await Customer.findOne({ firstname: firstName, lastname: lastName })
+    const products = await Product.find({customer: customer._id}).populate('details')
     if(!products) return res.status(204).json({ 'message': 'No products found.' })
     res.json(products)
 }
@@ -49,5 +59,6 @@ const addToInventory = async (req, res) => {
 module.exports = {
     getAllProducts,
     getAllProductsAvailable,
+    getAllUnavailableProducts,
     addToInventory
 }
