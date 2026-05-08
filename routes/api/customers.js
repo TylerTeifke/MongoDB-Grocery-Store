@@ -17,6 +17,9 @@ router.route('/updateCashier')
     .put(customerController.updateCustomerCashier)
 
 router.route('/addProduct')
-    .put(customerController.addToKart)
+    .put(customerController.addToCart)
+
+router.route('/removeProduct')
+    .put(customerController.removeFromCart)
 
 module.exports = router

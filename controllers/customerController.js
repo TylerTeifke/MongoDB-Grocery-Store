@@ -124,13 +124,12 @@ const updateCustomerCashier = async (req, res) => {
     }
 }
 
-const addToKart = async (req, res) => {
+const addToCart = async (req, res) => {
     const { firstName, lastName, itemID } = req.body
-    console.log(itemID)
     const customer = await Customer.findOne({ firstname: firstName, lastname: lastName }).exec()
     const product = await Product.findOne({ _id: itemID }).exec()
 
-    //If the customer already has the product in their kart, then don't add it again
+    //If the customer already has the product in their cart, then don't add it again
     if(product.customer !== null && customer._id.toString() === product.customer.toString()){
         return res.sendStatus(409)
     }
@@ -139,7 +138,28 @@ const addToKart = async (req, res) => {
         //Updates both the customer and the product
         await Product.updateOne({_id: itemID}, {customer: customer._id})
         await Customer.updateOne({firstname: firstName, lastname: lastName}, {$push:{products:{$each:[itemID]}}})
-        res.status(201).json({ 'success': `customer kart updated` })
+        res.status(201).json({ 'success': `customer cart updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
+const removeFromCart = async (req, res) => {
+    const { firstName, lastName, itemID } = req.body
+    const customer = await Customer.findOne({ firstname: firstName, lastname: lastName }).exec()
+    const product = await Product.findOne({ _id: itemID }).exec()
+
+    //If the customer does not have the product in their cart, then send an error message
+    if(product.customer === null || customer._id.toString() !== product.customer.toString()){
+        return res.sendStatus(409)
+    }
+
+    try{
+        //Updates both the customer and the product
+        await Product.updateOne({_id: itemID}, {customer: null})
+        await Customer.updateOne({firstname: firstName, lastname: lastName}, {$pull:{products: itemID}})
+        res.status(201).json({ 'success': `customer cart updated` })
     }
     catch(err){
         res.status(500).json({ 'message': err.message })
@@ -152,5 +172,6 @@ module.exports = {
     createCustomer,
     updateCustomerName,
     updateCustomerCashier,
-    addToKart
+    addToCart,
+    removeFromCart
 }

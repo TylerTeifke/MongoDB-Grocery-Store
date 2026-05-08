@@ -14,4 +14,7 @@ router.route('/inventory')
 router.route('/available')
     .get(productController.getAllProductsAvailable)
 
+router.route('/purchased/:first/:last')
+    .get(productController.getAllPurchasedProducts)
+
 module.exports = router
