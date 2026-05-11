@@ -33,6 +33,26 @@ const createProduct = async (req, res) => {
     }
 }
 
+const updatePrice = async (req, res) => {
+    const { name, price } = req.body
+
+    try{
+        await Product.updateOne({name: name}, {price: price})
+        res.status(201).json({ 'success': `product price updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
+const getAllProducts = async (req, res) => {
+    const products = await Product.find()
+    if(!products) return res.status(204).json({ 'message': 'No products found.' })
+    res.json(products)
+}
+
 module.exports = {
-    createProduct
+    createProduct,
+    updatePrice,
+    getAllProducts
 }
