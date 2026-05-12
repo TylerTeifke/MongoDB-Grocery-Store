@@ -34,10 +34,10 @@ const createProduct = async (req, res) => {
 }
 
 const updatePrice = async (req, res) => {
-    const { name, price } = req.body
+    const { product, price } = req.body
 
     try{
-        await Product.updateOne({name: name}, {price: price})
+        await Product.updateOne({name: product}, {price: price})
         res.status(201).json({ 'success': `product price updated` })
     }
     catch(err){
