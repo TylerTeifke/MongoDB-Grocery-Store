@@ -51,8 +51,33 @@ const getAllProducts = async (req, res) => {
     res.json(products)
 }
 
+const updateName = async (req, res) => {
+    const { oldName, newName } = req.body
+
+    //If there is no product with the old name, send an error message to the front end
+    const product = await Product.findOne({ name: oldName }).exec()
+    if(!product){
+        return res.sendStatus(409)
+    }
+    
+    //If the new name is taken, send an error message
+    const duplicate = await Product.findOne({ name: newName }).exec()
+    if(duplicate){
+        return res.sendStatus(410)
+    }
+
+    try{
+        await Product.updateOne({name: oldName}, {name: newName})
+        res.status(201).json({ 'success': `product name updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     createProduct,
     updatePrice,
-    getAllProducts
+    getAllProducts,
+    updateName
 }
