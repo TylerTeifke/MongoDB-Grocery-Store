@@ -17,6 +17,9 @@ router.route('/available')
 router.route('/purchased/:first/:last')
     .get(productController.getAllPurchasedProducts)
 
+router.route('/getTypes')
+    .get(productController.getAllTypes)
+
 router.route('/updatePrice')
     .put(productDetailsController.updatePrice)
 
@@ -25,5 +28,8 @@ router.route('/getDetails')
 
 router.route('/updateName')
     .put(productDetailsController.updateName)
+
+router.route('/updateType')
+    .put(productDetailsController.updateType)
 
 module.exports = router

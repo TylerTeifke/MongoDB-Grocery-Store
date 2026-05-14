@@ -12,19 +12,19 @@ const createProduct = async (req, res) => {
         return res.sendStatus(409)
     }
 
-    const proType = await Product_Type.findOne({ type: type }).exec()
+    //const proType = await Product_Type.findOne({ type: type }).exec()
 
     try{
         const newProduct = new Product({
             name: name,
             price: price,
-            type: proType._id
+            type: type
         })
     
         await newProduct.save()
     
         //updates the details array in the corresponding type table
-        await Product_Type.updateOne({_id: proType._id}, {$push:{details:{$each:[newProduct._id]}}})
+        await Product_Type.updateOne({_id: type}, {$push:{details:{$each:[newProduct._id]}}})
 
         res.status(201).json({ 'success': `new product ${name} created` })
     }
@@ -75,9 +75,28 @@ const updateName = async (req, res) => {
     }
 }
 
+const updateType = async (req, res) => {
+    const { name, newType } = req.body
+
+    //Will get the prodduct being updated so that it's ID can be used
+    const product = await Product.findOne({ name: name }).exec()
+
+    try{
+        //updates the details array in the corresponding type tables
+        await Product_Type.updateOne({_id: product.type}, {$pull:{details: product._id}})
+        await Product_Type.updateOne({_id: newType}, {$push:{details:{$each:[product._id]}}})
+        await Product.updateOne({name: name}, {type: newType})
+        res.status(201).json({ 'success': `product type updated` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     createProduct,
     updatePrice,
     getAllProducts,
-    updateName
+    updateName,
+    updateType
 }

@@ -4,6 +4,7 @@ const Product_Type = require('../models/Product_Type')
 const Product_Detail = require('../models/Product_Detail')
 const Customer = require('../models/Customer')
 
+//TODO: Have getAllProducts also display the products types.
 const getAllProducts = async (req, res) => {
     const products = await Product.find().populate('details')
     if(!products) return res.status(204).json({ 'message': 'No products found.' })
@@ -31,6 +32,12 @@ const getAllPurchasedProducts = async (req, res) => {
     }
 
     res.json(products)
+}
+
+const getAllTypes = async (req, res) => {
+    const types = await Product_Type.find()
+    if(!types) return res.status(204).json({ 'message': 'No types found.' })
+    res.json(types)
 }
 
 const addToInventory = async (req, res) => {
@@ -68,5 +75,6 @@ module.exports = {
     getAllProducts,
     getAllProductsAvailable,
     getAllPurchasedProducts,
+    getAllTypes,
     addToInventory
 }
