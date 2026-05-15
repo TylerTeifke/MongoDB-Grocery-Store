@@ -22,4 +22,7 @@ router.route('/addProduct')
 router.route('/removeProduct')
     .put(customerController.removeFromCart)
 
+router.route('/deleteEntry')
+    .delete(customerController.deleteCustomer)
+
 module.exports = router

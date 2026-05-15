@@ -213,6 +213,36 @@ const updateCustomerList = async (req, res) => {
     }
 }
 
+const deleteEmployee = async (req, res) => {
+    const { firstName, lastName } = req.body
+
+    //If there is no employee with the specified name, send an error message to the front end
+    const employee = await Employee.findOne({ firstname: firstName, lastname: lastName }).exec()
+    if(!employee){
+        return res.sendStatus(409)
+    }
+    
+    //Will make it easier for this method to disconnect the employee from their position
+    const position = await Position.findOne({ _id: employee.position_id }).exec()
+
+    try{
+        //Will disconnect the employee from all of their customers before being deleted
+        for(let i = 0; i < employee.customers.length; i++){
+            await Customer.updateOne({_id: employee.customers[i]}, {employee: null})
+        }
+
+        //disconnect the employee from their position before deleting them
+        await Position.updateOne({name: position.name}, {$pull:{employees: employee._id}})
+
+        //deletes the specified employee
+        await Employee.deleteOne({_id: employee._id})
+        res.status(201).json({ 'success': `Employee ${firstName} ${lastName} deleted` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllEmployees,
     getOneEmployee,
@@ -221,5 +251,6 @@ module.exports = {
     updateEmployeeSalary,
     updateEmployeeRegister,
     updateEmployeePosition,
-    updateCustomerList
+    updateCustomerList,
+    deleteEmployee
 }

@@ -166,6 +166,35 @@ const removeFromCart = async (req, res) => {
     }
 }
 
+const deleteCustomer = async (req, res) => {
+    const { firstName, lastName } = req.body
+
+    //If there is no customer with the specified name, send an error message to the front end
+    const customer = await Customer.findOne({ firstname: firstName, lastname: lastName }).exec()
+    if(!customer){
+        return res.sendStatus(409)
+    }
+
+    try{
+        //Will disconnect the customer from all of their products before being deleted
+        for(let i = 0; i < customer.products.length; i++){
+            await Product.updateOne({_id: customer.products[i]}, {customer: null})
+        }
+
+        if(customer.employee !== null){
+            //disconnect the customer from their cashier before deleting them
+            await Employee.updateOne({_id: customer.employee}, {$pull:{customers: customer._id}})
+        }
+
+        //deletes the specified customer
+        await Customer.deleteOne({_id: customer._id})
+        res.status(201).json({ 'success': `Customer ${firstName} ${lastName} deleted` })
+    }
+    catch(err){
+        res.status(500).json({ 'message': err.message })
+    }
+}
+
 module.exports = {
     getAllCustomers,
     getOneCustomer,
@@ -173,5 +202,6 @@ module.exports = {
     updateCustomerName,
     updateCustomerCashier,
     addToCart,
-    removeFromCart
+    removeFromCart,
+    deleteCustomer
 }

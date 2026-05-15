@@ -25,4 +25,7 @@ router.route('/updatePosition')
 router.route('/updateCustomerList')
     .put(employeeController.updateCustomerList)
 
+router.route('/deleteEntry')
+    .delete(employeeController.deleteEmployee)
+
 module.exports = router
